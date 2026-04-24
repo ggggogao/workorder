@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>健康服务 · 工单管理系统</title>
+<link rel="icon" href="https://at.alicdn.com/t/c/font_4615886_7skstpvxi7.css" type="image/x-icon">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<!-- Remix Icon - 开源矢量图标库 (2800+ 图标) -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.2.0/remixicon.min.css">
+<style>
+:root{
+  --bg:#f7f8fa;--bg2:#fff;--sidebar:#fff;--border:#e8eaed;--border2:#f0f1f3;
+  --text-primary:#1f2329;--text-secondary:#646a73;--text-tertiary:#9ea6b4;
+  --accent:#3370ff;--accent-bg:#eef3ff;--accent-hover:#2860f0;
+  --green:#00b365;--green-bg:#e8f8f0;--orange:#ff8800;--orange-bg:#fff4e5;
+  --red:#f54a45;--red-bg:#fff1f0;--purple:#7b61ff;--purple-bg:#f2f0ff;
+  --shadow:0 1px 4px rgba(0,0,0,.06),0 4px 16px rgba(0,0,0,.04);
+  --shadow-sm:0 1px 3px rgba(0,0,0,.06);--radius:8px;--radius-lg:12px;
+  --sidebar-w:220px;--topbar-h:56px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;background:var(--bg);color:var(--text-primary);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+button,input,select,textarea{font-family:inherit}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:#d0d3d8;border-radius:2px}
+
+/* LOGIN */
+.login-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:linear-gradient(145deg,#f0f4ff 0%,#f7f8fa 60%,#fff 100%)}
+.login-card{background:#fff;border-radius:16px;padding:44px 40px;width:380px;box-shadow:0 8px 40px rgba(51,112,255,.1),0 2px 8px rgba(0,0,0,.06)}
+.login-brand{display:flex;align-items:center;gap:10px;margin-bottom:32px}
+.login-logo{width:36px;height:36px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;font-weight:700}
+.login-brand-name{font-size:15px;font-weight:600}
+.login-brand-sub{font-size:11px;color:var(--text-tertiary);margin-top:1px}
+.login-title{font-size:22px;font-weight:700;margin-bottom:6px}
+.login-sub{font-size:13px;color:var(--text-secondary);margin-bottom:28px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px}
+.field input{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:14px;transition:.15s;outline:none}
+.field input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(51,112,255,.1)}
+.btn-login{width:100%;padding:11px;background:var(--accent);color:#fff;border-radius:var(--radius);font-size:14px;font-weight:500;border:none;cursor:pointer;transition:.15s;margin-top:4px}
+.btn-login:hover{background:var(--accent-hover)}
+.login-hint{font-size:12px;color:var(--text-tertiary);text-align:center;margin-top:14px}
+
+/* APP */
+.app{display:flex;height:100vh;overflow:hidden}
+.sidebar{width:var(--sidebar-w);background:#fff;border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+.sidebar-brand{height:var(--topbar-h);display:flex;align-items:center;gap:10px;padding:0 18px;border-bottom:1px solid var(--border2)}
+.s-logo{width:28px;height:28px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;font-weight:700;flex-shrink:0}
+.s-name{font-size:13px;font-weight:600}
+.s-sub{font-size:11px;color:var(--text-tertiary)}
+.nav-group{padding:12px 10px 2px;font-size:11px;font-weight:500;color:var(--text-tertiary);letter-spacing:.5px}
+.nav-item{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:var(--radius);color:var(--text-secondary);font-size:13px;cursor:pointer;margin:1px 6px;transition:.12s}
+.nav-item:hover{background:var(--bg);color:var(--text-primary)}
+.nav-item.active{background:var(--accent-bg);color:var(--accent);font-weight:500}
+.nav-icon{font-size:15px;width:18px;text-align:center;flex-shrink:0}
+.nav-badge{margin-left:auto;min-width:18px;height:18px;background:var(--red);color:#fff;border-radius:9px;font-size:10px;font-weight:600;display:none;align-items:center;justify-content:center;padding:0 5px}
+.sidebar-footer{margin-top:auto;border-top:1px solid var(--border2);padding:10px}
+.user-card{display:flex;align-items:center;gap:9px;padding:8px;border-radius:var(--radius);cursor:pointer;transition:.12s}
+.user-card:hover{background:var(--bg)}
+.user-av{width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.u-name{font-size:13px;font-weight:500}
+.u-role{font-size:11px;color:var(--text-tertiary)}
+
+/* MAIN */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden}
+.topbar{height:var(--topbar-h);background:#fff;border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:8px;flex-shrink:0}
+.topbar-title{font-size:15px;font-weight:600}
+.topbar-actions{margin-left:auto;display:flex;align-items:center;gap:6px}
+.topbar-time{font-size:12px;color:var(--text-tertiary)}
+.icon-btn{width:30px;height:30px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;background:transparent;color:var(--text-secondary);font-size:16px;cursor:pointer;border:none;transition:.12s}
+.icon-btn:hover{background:var(--bg)}
+.content{flex:1;overflow-y:auto;padding:24px}
+.page{display:none}
+.page.active{display:block}
+
+/* CARDS */
+.card{background:#fff;border-radius:var(--radius-lg);padding:20px;box-shadow:var(--shadow-sm);border:1px solid var(--border2);margin-bottom:16px}
+.card-hd{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.card-title{font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px}
+.ctd{width:3px;height:14px;border-radius:2px;background:var(--accent);flex-shrink:0}
+.card-acts{display:flex;gap:8px}
+
+/* STATS */
+.stats-row{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;margin-bottom:16px}
+.sbox{background:#fff;border-radius:var(--radius-lg);padding:16px 18px;box-shadow:var(--shadow-sm);border:1px solid var(--border2)}
+.s-lbl{font-size:12px;color:var(--text-tertiary);margin-bottom:8px}
+.s-val{font-size:26px;font-weight:700;line-height:1;letter-spacing:-.5px}
+.s-ft{font-size:11px;color:var(--text-tertiary);margin-top:6px}
+.c-dark{color:var(--text-primary)}.c-blue{color:var(--accent)}.c-green{color:var(--green)}.c-red{color:var(--red)}.c-orange{color:var(--orange)}.c-purple{color:var(--purple)}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;padding:2px 7px;border-radius:4px;font-size:11px;font-weight:500}
+.tag-red{background:var(--red-bg);color:var(--red)}
+.tag-green{background:var(--green-bg);color:var(--green)}
+.tag-orange{background:var(--orange-bg);color:var(--orange)}
+.tag-blue{background:var(--accent-bg);color:var(--accent)}
+.tag-gray{background:var(--bg);color:var(--text-secondary)}
+.tag-purple{background:var(--purple-bg);color:var(--purple)}
+
+/* PILLS (status) */
+.pill{display:inline-flex;align-items:center;gap:4px;padding:3px 8px;border-radius:20px;font-size:12px;font-weight:500}
+.pill::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.pill-pending{background:#fff8e6;color:#875100}.pill-pending::before{background:var(--orange)}
+.pill-processing{background:var(--accent-bg);color:#1e40c2}.pill-processing::before{background:var(--accent)}
+.pill-escalated{background:var(--red-bg);color:#a71515}.pill-escalated::before{background:var(--red)}
+.pill-done{background:var(--green-bg);color:#00663a}.pill-done::before{background:var(--green)}
+.pill-cancelled{background:var(--bg);color:var(--text-tertiary)}.pill-cancelled::before{background:var(--text-tertiary)}
+.pill-urgent{background:#fff0f0;color:#c62828;font-weight:600}
+.pill-high{background:var(--orange-bg);color:#7a3c00}
+.pill-normal{background:var(--accent-bg);color:#1e40c2}
+.pill-low{background:var(--bg);color:var(--text-tertiary)}
+.pill-admin{background:var(--red-bg);color:var(--red)}
+.pill-manager{background:var(--accent-bg);color:var(--accent)}
+.pill-agent{background:var(--green-bg);color:var(--green)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border-radius:var(--radius);font-size:13px;font-weight:500;cursor:pointer;border:none;transition:.12s}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{background:var(--accent-hover)}
+.btn-ghost{background:#fff;color:var(--text-secondary);border:1.5px solid var(--border)}.btn-ghost:hover{background:var(--bg)}
+.btn-danger{background:var(--red-bg);color:var(--red);border:1.5px solid transparent}.btn-danger:hover{background:#ffd6d5}
+.btn-success{background:var(--green-bg);color:var(--green);border:1.5px solid transparent}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-xs{padding:3px 8px;font-size:11px}
+
+/* TABLES */
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{padding:9px 13px;text-align:left;font-size:12px;font-weight:500;color:var(--text-tertiary);background:#fafbfc;border-bottom:1px solid var(--border2);white-space:nowrap}
+tbody td{padding:11px 13px;border-bottom:1px solid var(--border2);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover td{background:#fafbfc}
+.td-link{color:var(--accent);font-weight:500;cursor:pointer}
+.td-link:hover{text-decoration:underline}
+
+/* FILTERS */
+.filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.f-inp{padding:7px 12px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;background:#fff;outline:none;transition:.15s}
+.f-inp:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(51,112,255,.08)}
+.f-sel{padding:7px 10px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;background:#fff;cursor:pointer;outline:none;appearance:none;padding-right:26px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%239ea6b4' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 7px center}
+.f-sel:focus{border-color:var(--accent)}
+
+/* PROGRESS */
+.prog{height:4px;background:var(--border2);border-radius:2px;overflow:hidden}
+.prog-fill{height:100%;background:var(--accent);border-radius:2px;transition:.4s}
+.prog-g{background:var(--green)}.prog-o{background:var(--orange)}
+
+/* CHARTS */
+.charts-grid{display:grid;grid-template-columns:3fr 2fr;gap:16px;margin-bottom:16px}
+.chart-h{height:200px;position:relative}
+
+/* MODAL */
+.overlay{display:none;position:fixed;inset:0;background:rgba(31,35,41,.45);z-index:200;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:#fff;border-radius:var(--radius-lg);width:540px;max-width:92vw;max-height:88vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 24px 64px rgba(0,0,0,.16)}
+.modal-lg{width:660px}
+.modal-hd{padding:18px 22px 16px;border-bottom:1px solid var(--border2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-hd-t{font-size:15px;font-weight:600}
+.modal-close{width:26px;height:26px;border-radius:6px;background:var(--bg);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text-secondary);font-size:15px}
+.modal-close:hover{background:var(--border2)}
+.modal-bd{padding:20px 22px;overflow-y:auto;flex:1}
+.modal-ft{padding:14px 22px;border-top:1px solid var(--border2);display:flex;justify-content:flex-end;gap:8px;flex-shrink:0}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fi{display:flex;flex-direction:column;gap:4px}
+.fi.s2{grid-column:span 2}
+.fi label{font-size:12px;font-weight:500;color:var(--text-secondary)}
+.fi label.req::after{content:' *';color:var(--red)}
+.fc{padding:8px 11px;border:1.5px solid var(--border);border-radius:var(--radius);font-size:13px;background:#fff;outline:none;transition:.15s;width:100%}
+.fc:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(51,112,255,.08)}
+.fc-ta{resize:vertical;min-height:68px;line-height:1.6}
+.f-hint{font-size:11px;color:var(--text-tertiary);margin-top:2px}
+.f-sec{font-size:11px;font-weight:600;color:var(--text-tertiary);text-transform:uppercase;letter-spacing:.5px;margin:16px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--border2)}
+
+/* DETAIL */
+.det-grid{display:grid;grid-template-columns:1fr 1fr;border:1px solid var(--border2);border-radius:var(--radius-lg);overflow:hidden;margin-bottom:16px}
+.det-item{padding:10px 13px;border-bottom:1px solid var(--border2)}
+.det-item:nth-last-child(-n+2){border-bottom:none}
+.det-full{grid-column:span 2}
+.det-k{font-size:11px;color:var(--text-tertiary);margin-bottom:3px}
+.det-v{font-size:13px;color:var(--text-primary)}
+
+/* TIMELINE */
+.tl{padding-left:14px;border-left:2px solid var(--border2)}
+.tl-item{position:relative;padding:0 0 12px 14px}
+.tl-item::before{content:'';position:absolute;left:-5px;top:5px;width:8px;height:8px;border-radius:50%;background:var(--border);border:2px solid #fff}
+.tl-item.tl-first::before{background:var(--accent)}
+.tl-act{font-size:13px;font-weight:500}
+.tl-meta{font-size:11px;color:var(--text-tertiary);margin-top:2px}
+
+/* NOTIFY */
+.notify-preview-box{background:#fafbfc;border:1.5px solid var(--border2);border-radius:var(--radius-lg);padding:16px;font-size:13px;line-height:1.9;color:var(--text-primary);border-left:3px solid var(--accent);min-height:130px}
+.ch-row{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1.5px solid var(--border2);border-radius:var(--radius);margin-bottom:8px;cursor:pointer;transition:.12s}
+.ch-row:hover{border-color:var(--accent);background:var(--accent-bg)}
+.ch-row input{accent-color:var(--accent);width:14px;height:14px}
+.ch-icon{font-size:20px}
+.ch-name{font-size:13px;font-weight:500}
+.ch-sub{font-size:11px;color:var(--text-tertiary);margin-top:1px}
+.sch-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.sch-box{padding:11px;border:1.5px solid var(--border2);border-radius:var(--radius);cursor:pointer;text-align:center;transition:.12s}
+.sch-box:hover,.sch-box.sel{border-color:var(--accent);background:var(--accent-bg)}
+.sch-time{font-size:15px;font-weight:600}
+.sch-lbl{font-size:11px;color:var(--text-tertiary);margin-top:2px}
+
+/* TOGGLE */
+.toggle{position:relative;display:inline-block;width:34px;height:19px}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-sl{position:absolute;inset:0;background:var(--border);border-radius:10px;cursor:pointer;transition:.2s}
+.toggle input:checked+.toggle-sl{background:var(--accent)}
+.toggle-sl::before{content:'';position:absolute;width:13px;height:13px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.toggle input:checked+.toggle-sl::before{transform:translateX(15px)}
+
+/* API DOCS */
+.api-ep{display:flex;align-items:center;gap:8px;padding:9px 12px;background:#fafbfc;border:1px solid var(--border2);border-radius:var(--radius);font-family:monospace;font-size:12px;margin-bottom:6px}
+.api-m{padding:2px 7px;border-radius:4px;font-size:11px;font-weight:700;flex-shrink:0}
+.m-get{background:var(--green-bg);color:var(--green)}
+.m-post{background:var(--accent-bg);color:var(--accent)}
+.m-patch{background:var(--orange-bg);color:var(--orange)}
+.cp-btn{margin-left:auto;font-size:11px;color:var(--accent);cursor:pointer;font-family:-apple-system,sans-serif}
+
+/* MISC */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.pagi{display:flex;align-items:center;justify-content:space-between;padding-top:12px;font-size:13px;color:var(--text-secondary)}
+.pagi-btns{display:flex;gap:4px}
+.pagi-btn{padding:4px 9px;border-radius:6px;border:1.5px solid var(--border2);background:#fff;font-size:12px;cursor:pointer;color:var(--text-secondary);transition:.12s}
+.pagi-btn:hover{border-color:var(--accent);color:var(--accent)}
+.pagi-btn.cur{background:var(--accent);color:#fff;border-color:var(--accent)}
+.empty-st{text-align:center;padding:40px;color:var(--text-tertiary)}
+.empty-ico{font-size:32px;margin-bottom:8px;opacity:.4}
+.alert-strip{background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius);padding:10px 16px;display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.alert-txt{font-size:13px;color:#92400e;flex:1}
+tr.ov-row td:first-child{border-left:2px solid var(--red)}
+</style>
+</head>
+<body>
+
+<div id="loginWrap" class="login-wrap">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="login-logo"><i class="ri-heart-pulse-line" style="color:#fff;font-size:18px"></i></div>
+      <div><div class="login-brand-name">健康服务工单系统</div><div class="login-brand-sub">Health Service · Work Order Management</div></div>
+    </div>
+    <div class="login-title">欢迎回来</div>
+    <div class="login-sub">请使用企业账号登录</div>
+    <div class="field"><label>邮箱地址</label><input id="le" type="email" value="admin@company.com"></div>
+    <div class="field"><label>登录密码</label><input id="lp" type="password" value="Admin123"></div>
+    <button class="btn-login" onclick="doLogin()">登 录</button>
+    <div class="login-hint">默认账号 admin@company.com · Admin123</div>
+  </div>
+</div>
+
+<div id="appWrap" class="app" style="display:none">
+  <div class="sidebar">
+    <div class="sidebar-brand">
+      <div class="s-logo"><i class="ri-heart-pulse-line" style="color:#fff;font-size:14px"></i></div>
+      <div><div class="s-name">工单管理</div><div class="s-sub">健康服务部</div></div>
+    </div>
+    <div style="flex:1;overflow-y:auto;padding-bottom:8px">
+      <div class="nav-group">工作台</div>
+      <div class="nav-item active" data-p="dashboard" onclick="go('dashboard')"><span class="nav-icon"><i class="ri-dashboard-line" style="font-size:15px"></i></span>工单看板</div>
+      <div class="nav-item" data-p="orders" onclick="go('orders')"><span class="nav-icon"><i class="ri-file-list-3-line" style="font-size:15px"></i></span>工单列表<span class="nav-badge" id="nbPending">0</span></div>
+      <div class="nav-group">触达管理</div>
+      <div class="nav-item" data-p="notify" onclick="go('notify')"><span class="nav-icon"><i class="ri-notification-3-line" style="font-size:15px"></i></span>触达配置</div>
+      <div class="nav-item" data-p="notify-log" onclick="go('notify-log')"><span class="nav-icon"><i class="ri-history-line" style="font-size:15px"></i></span>触达记录</div>
+      <div class="nav-group">数据分析</div>
+      <div class="nav-item" data-p="projects" onclick="go('projects')"><span class="nav-icon"><i class="ri-folder-chart-line" style="font-size:15px"></i></span>项目统计</div>
+      <div class="nav-group">系统管理</div>
+      <div class="nav-item" data-p="users" onclick="go('users')"><span class="nav-icon"><i class="ri-team-line" style="font-size:15px"></i></span>人员管理</div>
+      <div class="nav-item" data-p="profile" onclick="go('profile')"><span class="nav-icon"><i class="ri-settings-3-line" style="font-size:15px"></i></span>个人设置</div>
+      <div class="nav-item" data-p="api-config" onclick="go('api-config')"><span class="nav-icon"><i class="ri-api-line" style="font-size:15px"></i></span>数据接口</div>
+    </div>
+    <div class="sidebar-footer">
+      <div class="user-card" onclick="go('profile')">
+        <div class="user-av" id="sAv">管</div>
+        <div><div class="u-name" id="sName">管理员</div><div class="u-role" id="sRole">超级管理员</div></div>
+        <div style="margin-left:auto;color:var(--text-tertiary);font-size:13px">···</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="topbar">
+      <div class="topbar-title" id="pgTitle">工单看板</div>
+      <div class="topbar-actions">
+        <div class="topbar-time" id="topTime"></div>
+        <button class="icon-btn" title="刷新" onclick="refreshCur()">↻</button>
+        <button class="icon-btn" title="退出" onclick="doLogout()">⎋</button>
+      </div>
+    </div>
+    <div class="content">
+
+      <!-- DASHBOARD -->
+      <div id="page-dashboard" class="page active">
+        <div id="dashAlert" class="alert-strip" style="display:none"><span style="font-size:16px">⚠️</span><div class="alert-txt" id="dashAlertTxt"></div><button class="btn btn-sm" style="background:#f59e0b;color:#fff;border:none;flex-shrink:0" onclick="go('notify')">去发送通知</button></div>
+        <div class="stats-row" id="statsRow"></div>
+        <div class="charts-grid">
+          <div class="card"><div class="card-hd"><div class="card-title"><span class="ctd"></span>近7日工单趋势</div><button class="btn btn-ghost btn-xs" onclick="loadDash()">↻</button></div><div class="chart-h"><canvas id="trendChart"></canvas></div></div>
+          <div class="card"><div class="card-hd"><div class="card-title"><span class="ctd"></span>状态分布</div></div><div class="chart-h"><canvas id="pieChart"></canvas></div></div>
+        </div>
+        <div class="card">
+          <div class="card-hd"><div class="card-title"><span class="ctd"></span>各项目工单概览</div><button class="btn btn-primary btn-sm" onclick="go('notify')">🔔 发送今日触达</button></div>
+          <div class="table-wrap"><table><thead><tr><th>项目名称</th><th>负责人</th><th>总工单</th><th>已完结</th><th>未完结</th><th>超时</th><th>完结率</th><th>进度</th></tr></thead><tbody id="dashProjTb"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- ORDERS -->
+      <div id="page-orders" class="page">
+        <div class="card">
+          <div class="card-hd"><div class="card-title"><span class="ctd"></span>工单列表</div><div class="card-acts"><button class="btn btn-ghost btn-sm" onclick="filterPending()">仅看未完结</button><button class="btn btn-ghost btn-sm" onclick="clearFlt()">全部</button><button class="btn btn-primary btn-sm" onclick="openCreate()">+ 新建工单</button></div></div>
+          <div class="filter-bar">
+            <input class="f-inp" style="flex:1;min-width:160px" placeholder="🔍  搜索工单号 / 客户名 / 手机号" oninput="applyFlt()" id="kw">
+            <select class="f-sel" onchange="applyFlt()" id="fProj"><option value="">全部项目</option></select>
+            <select class="f-sel" onchange="applyFlt()" id="fSt"><option value="">全部状态</option><option value="pending">待处理</option><option value="processing">处理中</option><option value="escalated">已升级</option><option value="done">已完结</option></select>
+            <select class="f-sel" onchange="applyFlt()" id="fPri"><option value="">全部优先级</option><option value="urgent">紧急</option><option value="high">高</option><option value="normal">普通</option><option value="low">低</option></select>
+            <select class="f-sel" onchange="applyFlt()" id="fAss"><option value="">全部处理人</option></select>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>工单号</th><th>项目</th><th>客户</th><th>问题类型</th><th>优先级</th><th>状态</th><th>处理人</th><th>截止日期</th><th>创建</th><th style="min-width:100px">操作</th></tr></thead><tbody id="ordersTb"></tbody></table></div>
+          <div class="pagi" id="ordersPagi"></div>
+        </div>
+      </div>
+
+      <!-- NOTIFY -->
+      <div id="page-notify" class="page">
+        <div class="two-col">
+          <div>
+            <div class="card">
+              <div class="card-hd"><div class="card-title"><span class="ctd"></span>今日待触达</div><button class="btn btn-ghost btn-xs" onclick="loadNotify()">↻</button></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0" id="notifyStats"></div>
+            </div>
+            <div class="card">
+              <div class="card-hd"><div class="card-title"><span class="ctd"></span>通知渠道</div></div>
+              <label class="ch-row"><input type="checkbox" id="chW" checked><span class="ch-icon">💬</span><div><div class="ch-name">企业微信群机器人</div><div class="ch-sub">推送 Markdown 消息至群组</div></div></label>
+              <label class="ch-row"><input type="checkbox" id="chE" checked><span class="ch-icon">📧</span><div><div class="ch-name">邮件通知</div><div class="ch-sub">发送 HTML 日报至负责人邮箱</div></div></label>
+              <div style="display:flex;gap:8px;margin-top:12px"><button class="btn btn-primary" onclick="sendNotify()" id="sendBtn" style="flex:1">📤 立即发送</button><button class="btn btn-ghost" onclick="loadNotify()">刷新预览</button></div>
+            </div>
+            <div class="card">
+              <div class="card-hd"><div class="card-title"><span class="ctd"></span>定时触达配置</div></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+                <div><div style="font-size:13px;font-weight:500">启用每日自动触达</div><div style="font-size:11px;color:var(--text-tertiary);margin-top:2px">自动筛选未完结工单并推送</div></div>
+                <label class="toggle"><input type="checkbox" checked><span class="toggle-sl"></span></label>
+              </div>
+              <div style="font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:8px">选择触达时间</div>
+              <div class="sch-grid">
+                <div class="sch-box sel" onclick="selSch(this,'30 8 * * 1-5')"><div class="sch-time">08:30</div><div class="sch-lbl">工作日早晨</div></div>
+                <div class="sch-box" onclick="selSch(this,'0 10 * * 1-5')"><div class="sch-time">10:00</div><div class="sch-lbl">工作日上午</div></div>
+                <div class="sch-box" onclick="selSch(this,'0 14 * * 1-5')"><div class="sch-time">14:00</div><div class="sch-lbl">工作日下午</div></div>
+              </div>
+              <div style="margin-top:12px">
+                <div style="font-size:12px;font-weight:500;color:var(--text-secondary);margin-bottom:6px">自定义 Cron 表达式</div>
+                <div style="display:flex;gap:8px"><input class="fc" id="cronVal" value="30 8 * * 1-5" style="font-family:monospace;font-size:12px;flex:1"><button class="btn btn-ghost btn-sm" onclick="saveCron()">保存</button></div>
+                <div class="f-hint">工作日 08:30 自动触达</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card">
+              <div class="card-hd"><div class="card-title"><span class="ctd"></span>消息内容预览</div></div>
+              <div class="notify-preview-box" id="notifyPrev">加载中...</div>
+            </div>
+            <div class="card">
+              <div class="card-hd"><div class="card-title"><span class="ctd"></span>消息模板配置</div><button class="btn btn-ghost btn-xs" onclick="saveTpl()">保存模板</button></div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div class="fi"><label>邮件主题</label><input class="fc" id="tplSubject" placeholder="【工单日报】{{date}} 未完结 {{total}} 件"><div class="f-hint">支持变量：{{date}} 日期，{{total}} 未完结总数</div></div>
+                <div class="fi"><label>开头问候语</label><input class="fc" id="tplGreeting" placeholder="您好，以下是今日未完结工单汇总："></div>
+                <div class="fi"><label>结尾提示语</label><input class="fc" id="tplFooter" placeholder="请及时跟进，确保在截止日期前完结。"></div>
+                <div class="fi"><label>落款签名</label><input class="fc" id="tplSignature" placeholder="健康服务部工单系统 · 自动推送"></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--border2)">
+                  <div><div style="font-size:13px;font-weight:500">显示各项目明细</div><div style="font-size:11px;color:var(--text-tertiary);margin-top:1px">按项目分组展示未完结数量</div></div>
+                  <label class="toggle"><input type="checkbox" id="tplShowProj" checked><span class="toggle-sl"></span></label>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px solid var(--border2)">
+                  <div><div style="font-size:13px;font-weight:500">显示紧急工单数</div><div style="font-size:11px;color:var(--text-tertiary);margin-top:1px">在消息中突出显示紧急工单数量</div></div>
+                  <label class="toggle"><input type="checkbox" id="tplShowUrgent" checked><span class="toggle-sl"></span></label>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hd"><div class="card-title"><span class="ctd"></span>接收人配置</div><button class="btn btn-ghost btn-xs" onclick="go('users')">管理人员 →</button></div>
+              <div id="notifyRecips"></div>
+              <div class="f-hint" style="margin-top:8px">可在「人员管理」中开启/关闭各人员的接收权限</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOTIFY LOG -->
+      <div id="page-notify-log" class="page">
+        <div class="card">
+          <div class="card-hd"><div class="card-title"><span class="ctd"></span>触达发送记录</div><button class="btn btn-ghost btn-sm" onclick="loadNtfLog()">↻</button></div>
+          <div class="table-wrap"><table><thead><tr><th>发送时间</th><th>渠道</th><th>触发方式</th><th>工单数</th><th>状态</th><th>备注</th></tr></thead><tbody id="ntfLogTb"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- PROJECTS -->
+      <div id="page-projects" class="page">
+        <div class="stats-row" id="projSmry" style="grid-template-columns:repeat(4,1fr)"></div>
+        <div id="projCards"></div>
+      </div>
+
+      <!-- USERS -->
+      <div id="page-users" class="page">
+        <div class="card">
+          <div class="card-hd"><div class="card-title"><span class="ctd"></span>系统人员列表</div><div class="card-acts"><button class="btn btn-ghost btn-sm" onclick="loadUsers()">↻</button><button class="btn btn-primary btn-sm" onclick="openAddUser()">+ 添加成员</button></div></div>
+          <div class="filter-bar">
+            <input class="f-inp" placeholder="🔍  搜索姓名 / 邮箱" oninput="fltUsers(this.value)" style="flex:1">
+            <select class="f-sel" onchange="fltUserRole(this.value)"><option value="">全部角色</option><option value="admin">管理员</option><option value="manager">项目经理</option><option value="agent">业务人员</option></select>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>姓名</th><th>邮箱</th><th>部门</th><th>角色</th><th>接收通知</th><th>状态</th><th>最后登录</th><th>操作</th></tr></thead><tbody id="usersTb"></tbody></table></div>
+        </div>
+      </div>
+
+      <!-- PROFILE -->
+      <div id="page-profile" class="page">
+        <div class="two-col">
+          <div class="card">
+            <div class="card-hd"><div class="card-title"><span class="ctd"></span>个人信息</div></div>
+            <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px">
+              <div style="width:56px;height:56px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;color:#fff;font-size:20px;font-weight:700" id="profAv">管</div>
+              <div><div style="font-size:15px;font-weight:600" id="profName">—</div><div style="font-size:12px;color:var(--text-tertiary);margin-top:2px" id="profEmail">—</div></div>
+            </div>
+            <div class="form-grid">
+              <div class="fi"><label class="req">姓名</label><input class="fc" id="pName" placeholder="请输入姓名"></div>
+              <div class="fi"><label>手机号</label><input class="fc" id="pPhone" placeholder="请输入手机号"></div>
+              <div class="fi"><label>部门</label><input class="fc" id="pDept" placeholder="所属部门"></div>
+              <div class="fi"><label>企业微信 ID</label><input class="fc" id="pWecom" placeholder="用于企业微信消息触达"></div>
+              <div class="fi s2"><label>邮箱（只读）</label><input class="fc" id="pEmail" readonly style="background:#fafbfc;color:var(--text-tertiary)"></div>
+            </div>
+            <button class="btn btn-primary" style="margin-top:14px" onclick="saveProfile()">保存信息</button>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:16px">
+              <div class="card-hd"><div class="card-title"><span class="ctd"></span>通知偏好</div></div>
+              <div style="display:flex;flex-direction:column;gap:14px">
+                <div style="display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:13px;font-weight:500">接收每日工单汇总</div><div style="font-size:11px;color:var(--text-tertiary);margin-top:1px">工作日自动触达提醒</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-sl"></span></label></div>
+                <div style="display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:13px;font-weight:500">接收超时预警</div><div style="font-size:11px;color:var(--text-tertiary);margin-top:1px">工单超过截止日期即时提醒</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-sl"></span></label></div>
+                <div style="display:flex;align-items:center;justify-content:space-between"><div><div style="font-size:13px;font-weight:500">紧急工单实时推送</div><div style="font-size:11px;color:var(--text-tertiary);margin-top:1px">紧急优先级工单创建后立即推送</div></div><label class="toggle"><input type="checkbox"><span class="toggle-sl"></span></label></div>
+              </div>
+              <button class="btn btn-ghost btn-sm" style="margin-top:14px" onclick="toast('通知偏好已保存')">保存偏好</button>
+            </div>
+            <div class="card">
+              <div class="card-hd"><div class="card-title"><span class="ctd"></span>修改密码</div></div>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div class="fi"><label>当前密码</label><input class="fc" type="password" id="oldPwd" placeholder="请输入当前密码"></div>
+                <div class="fi"><label>新密码</label><input class="fc" type="password" id="newPwd" placeholder="至少8位，含字母和数字"></div>
+                <div class="fi"><label>确认密码</label><input class="fc" type="password" id="cfmPwd" placeholder="再次输入新密码"></div>
+                <button class="btn btn-ghost btn-sm" style="align-self:flex-start" onclick="chgPwd()">修改密码</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- API CONFIG -->
+      <div id="page-api-config" class="page">
+        <div class="two-col">
+          <div>
+            <div class="card">
+              <div class="card-hd"><div class="card-title"><span class="ctd"></span>业务系统接入接口</div></div>
+              <div style="font-size:13px;color:var(--text-secondary);margin-bottom:14px;line-height:1.7">通过标准 REST API 将 CRM、客服平台等业务系统数据同步至本系统。所有接口需携带 Bearer Token 鉴权。</div>
+              <div style="font-size:12px;font-weight:600;color:var(--text-tertiary);margin:0 0 8px">数据写入（业务系统 → 本系统）</div>
+              <div id="apiPush"></div>
+              <div style="font-size:12px;font-weight:600;color:var(--text-tertiary);margin:14px 0 8px">数据读取（本系统 → 业务系统）</div>
+              <div id="apiPull"></div>
+              <div style="margin-top:14px;padding:12px;background:var(--accent-bg);border-radius:var(--radius);font-size:12px;color:var(--accent);line-height:1.7">
+                <strong>鉴权说明：</strong>Header 携带 <code style="background:rgba(51,112,255,.1);padding:1px 5px;border-radius:3px">Authorization: Bearer &lt;token&gt;</code><br>
+                登录接口 <code>POST /api/auth/login</code> 获取 token，有效期 7 天<br>
+                统一返回格式：<code>{"code":0,"data":{},"message":""}</code>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="card" style="margin-bottom:16px">
+              <div class="card-hd"><div class="card-title"><span class="ctd"></span>企业微信配置</div></div>
+              <div class="fi" style="margin-bottom:12px">
+                <label>群机器人 Webhook URL</label>
+                <input class="fc" id="wcWebhook" placeholder="https://qyapi.weixin.qq.com/cgi-bin/webhook/send?key=..." style="font-family:monospace;font-size:12px">
+                <div class="f-hint">企业微信群 → 右上角「···」→「添加群机器人」→ 复制 Webhook</div>
+              </div>
+              <div style="display:flex;gap:8px">
+                <button class="btn btn-ghost btn-sm" onclick="toast('测试消息已发送，请查看群组')">🧪 测试连通</button>
+                <button class="btn btn-primary btn-sm" onclick="toast('企业微信配置已保存')">保存</button>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-hd"><div class="card-title"><span class="ctd"></span>邮件 SMTP 配置</div></div>
+              <div class="form-grid" style="gap:10px">
+                <div class="fi"><label>SMTP 服务器</label><input class="fc" id="smtpH" placeholder="smtp.exmail.qq.com"></div>
+                <div class="fi"><label>端口</label><input class="fc" id="smtpP" placeholder="465"></div>
+                <div class="fi s2"><label>发件账号</label><input class="fc" id="smtpU" placeholder="notify@company.com"></div>
+                <div class="fi s2"><label>授权码 / 密码</label><input class="fc" type="password" id="smtpPw" placeholder="•••••••••"></div>
+              </div>
+              <div style="display:flex;gap:8px;margin-top:12px">
+                <button class="btn btn-ghost btn-sm" onclick="toast('测试邮件已发送，请查收')">🧪 测试发送</button>
+                <button class="btn btn-primary btn-sm" onclick="toast('邮件配置已保存')">保存</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL MODAL -->
+<div class="overlay" id="detOv">
+  <div class="modal modal-lg">
+    <div class="modal-hd"><div class="modal-hd-t" id="detTitle">工单详情</div><button class="modal-close" onclick="cls('detOv')">✕</button></div>
+    <div class="modal-bd" id="detBd"></div>
+    <div class="modal-ft"><button class="btn btn-ghost" onclick="cls('detOv')">关闭</button><button class="btn btn-primary" id="detUpdBtn" onclick="openStModal()">更新状态</button></div>
+  </div>
+</div>
+
+<!-- STATUS MODAL -->
+<div class="overlay" id="stOv">
+  <div class="modal" style="width:440px">
+    <div class="modal-hd"><div class="modal-hd-t">更新工单</div><button class="modal-close" onclick="cls('stOv')">✕</button></div>
+    <div class="modal-bd">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px">
+        <div class="fi">
+          <label class="req">变更状态</label>
+          <select class="fc" id="newSt">
+            <option value="pending">待处理</option>
+            <option value="processing">处理中</option>
+            <option value="escalated">已升级</option>
+            <option value="done">已完结</option>
+          </select>
+        </div>
+        <div class="fi">
+          <label>优先级</label>
+          <select class="fc" id="newPri">
+            <option value="">不变</option>
+            <option value="urgent">紧急</option>
+            <option value="high">高</option>
+            <option value="normal">普通</option>
+            <option value="low">低</option>
+          </select>
+        </div>
+      </div>
+      <div class="fi" style="margin-bottom:12px">
+        <label>重新指派处理人</label>
+        <select class="fc" id="newAssigneeId">
+          <option value="">不变</option>
+        </select>
+        <div class="f-hint">选择后将工单转交给其他处理人</div>
+      </div>
+      <div class="fi" style="margin-bottom:12px">
+        <label>截止日期</label>
+        <input class="fc" type="date" id="newDeadline">
+        <div class="f-hint">如需调整截止日期可在此修改</div>
+      </div>
+      <div class="fi">
+        <label>操作备注</label>
+        <textarea class="fc fc-ta" id="stRmk" placeholder="请输入操作说明，如：转交原因、处理进展等..."></textarea>
+      </div>
+    </div>
+    <div class="modal-ft"><button class="btn btn-ghost" onclick="cls('stOv')">取消</button><button class="btn btn-primary" onclick="submitSt()">确认更新</button></div>
+  </div>
+</div>
+
+<!-- CREATE ORDER MODAL -->
+<div class="overlay" id="crOv">
+  <div class="modal modal-lg">
+    <div class="modal-hd"><div class="modal-hd-t">新建工单</div><button class="modal-close" onclick="cls('crOv')">✕</button></div>
+    <div class="modal-bd">
+      <div class="f-sec">工单信息</div>
+      <div class="form-grid">
+        <div class="fi"><label class="req">所属项目</label><select class="fc" id="cProj"><option value="">请选择项目</option></select></div>
+        <div class="fi"><label class="req">问题类型</label><select class="fc" id="cIss"><option value="">请选择</option><option>投诉跟进</option><option>退款申请</option><option>服务异常</option><option>预约失败</option><option>信息核实</option><option>物流查询</option><option>账号问题</option><option>其他</option></select></div>
+        <div class="fi"><label class="req">客户姓名</label><input class="fc" id="cCust" placeholder="请输入客户姓名"></div>
+        <div class="fi"><label>联系电话</label><input class="fc" id="cPhone" placeholder="请输入联系电话"></div>
+        <div class="fi"><label>客户 ID</label><input class="fc" id="cCid" placeholder="会员号 / 系统 ID"></div>
+        <div class="fi"><label>工单来源</label><select class="fc" id="cSrc"><option value="manual">手动录入</option><option value="phone">电话</option><option value="app">APP</option><option value="wecom">企业微信</option><option value="email">邮件</option></select></div>
+        <div class="fi s2"><label class="req">工单标题</label><input class="fc" id="cTitle" placeholder="请简要描述客户问题"></div>
+        <div class="fi s2"><label>详细描述</label><textarea class="fc fc-ta" id="cDesc" placeholder="填写问题详情、客户诉求..."></textarea></div>
+      </div>
+      <div class="f-sec">处理信息</div>
+      <div class="form-grid">
+        <div class="fi"><label>优先级</label><select class="fc" id="cPri"><option value="normal">普通</option><option value="high">高</option><option value="urgent">紧急</option><option value="low">低</option></select></div>
+        <div class="fi"><label>指派处理人</label><select class="fc" id="cAss"><option value="">待指派</option></select></div>
+        <div class="fi"><label>截止日期</label><input class="fc" type="date" id="cDdl"></div>
+        <div class="fi"><label>内部备注</label><input class="fc" id="cRmk" placeholder="内部备注，不对客户展示"></div>
+      </div>
+    </div>
+    <div class="modal-ft"><button class="btn btn-ghost" onclick="cls('crOv')">取消</button><button class="btn btn-primary" onclick="submitCreate()">创建工单</button></div>
+  </div>
+</div>
+
+<!-- CREATE USER MODAL -->
+<div class="overlay" id="usrOv">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-hd-t" id="usrMdTitle">添加成员</div><button class="modal-close" onclick="cls('usrOv')">✕</button></div>
+    <div class="modal-bd">
+      <div class="form-grid">
+        <div class="fi"><label class="req">姓名</label><input class="fc" id="uNm" placeholder="请输入姓名"></div>
+        <div class="fi"><label class="req">邮箱</label><input class="fc" type="email" id="uEm" placeholder="请输入邮箱"></div>
+        <div class="fi"><label>部门</label><input class="fc" id="uDp" value="健康服务部"></div>
+        <div class="fi"><label class="req">角色</label><select class="fc" id="uRl"><option value="agent">业务人员</option><option value="manager">项目经理</option><option value="admin">管理员</option></select></div>
+        <div class="fi"><label>企业微信 ID</label><input class="fc" id="uWc" placeholder="用于消息触达"></div>
+        <div class="fi"><label>手机号</label><input class="fc" id="uPh" placeholder="手机号码"></div>
+        <div class="fi s2"><label class="req">初始密码</label><input class="fc" type="password" id="uPw" placeholder="至少8位，含字母和数字"></div>
+      </div>
+      <div style="margin-top:12px;padding:11px 13px;background:var(--accent-bg);border-radius:var(--radius);font-size:12px;color:var(--accent);line-height:1.7">💡 添加后成员可用邮箱+密码登录，权限按角色自动分配</div>
+    </div>
+    <div class="modal-ft"><button class="btn btn-ghost" onclick="cls('usrOv')">取消</button><button class="btn btn-primary" onclick="submitUser()">确认添加</button></div>
+  </div>
+</div>
+
+<div id="toast" style="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1f2329;color:#fff;padding:9px 18px;border-radius:8px;font-size:13px;z-index:999;opacity:0;transition:.25s;pointer-events:none;white-space:nowrap"></div>
+
+<script>
+let token='',me={},projects=[],users=[],curOrdId=null,curOrd=null,curPage=1,usersAll=[];
+let trendInst=null,pieInst=null;
+const RL={admin:'管理员',manager:'项目经理',agent:'业务人员'};
+const SL={pending:'待处理',processing:'处理中',escalated:'已升级',done:'已完结',cancelled:'已取消'};
+const PL={urgent:'紧急',high:'高',normal:'普通',low:'低'};
+
+async function api(m,p,b){
+  const r=await fetch('/api'+p,{method:m,headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:b?JSON.stringify(b):undefined});
+  const d=await r.json();
+  if(r.status===401){doLogout();return;}
+  return d;
+}
+function toast(msg,type='ok'){
+  const el=document.getElementById('toast');
+  el.textContent=(type==='ok'?'✓  ':'✗  ')+msg;
+  el.style.background=type==='ok'?'#1f2329':'#f54a45';
+  el.style.opacity='1';
+  setTimeout(()=>el.style.opacity='0',2600);
+}
+function fmt(d){return d?new Date(d).toLocaleDateString('zh-CN',{month:'2-digit',day:'2-digit'}):'—'}
+function fmtFull(d){return d?new Date(d).toLocaleString('zh-CN',{month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit'}):'—'}
+function todayStr(){return new Date().toISOString().slice(0,10)}
+function isOv(o){return o.deadline&&o.deadline<todayStr()&&!['done','cancelled'].includes(o.status)}
+function pill(c,t){return`<span class="pill pill-${c}">${t}</span>`}
+function open(id){document.getElementById(id).classList.add('open')}
+function cls(id){document.getElementById(id).classList.remove('open')}
+function cp(t){navigator.clipboard?.writeText(t).then(()=>toast('已复制'))}
+
+async function doLogin(){
+  const email=document.getElementById('le').value.trim();
+  const pwd=document.getElementById('lp').value;
+  const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({email,password:pwd})});
+  const d=await r.json();
+  if(d.code===0){token=d.data.token;me=d.data.user;localStorage.setItem('token',token);localStorage.setItem('me',JSON.stringify(me));boot();}
+  else toast('邮箱或密码错误','err');
+}
+function doLogout(){localStorage.clear();location.reload();}
+
+async function boot(){
+  document.getElementById('loginWrap').style.display='none';
+  document.getElementById('appWrap').style.display='flex';
+  document.getElementById('sName').textContent=me.name||'用户';
+  document.getElementById('sRole').textContent=RL[me.role]||me.role;
+  document.getElementById('sAv').textContent=(me.name||'U')[0];
+  setInterval(()=>{document.getElementById('topTime').textContent=new Date().toLocaleTimeString('zh-CN');},1000);
+  const[pr,us]=await Promise.all([api('GET','/projects'),api('GET','/users')]);
+  projects=pr?.data||[];users=us?.data||[];
+  ['fProj','cProj'].forEach(id=>{const s=document.getElementById(id);projects.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.text=p.name;s.appendChild(o)});});
+  users.forEach(u=>{['fAss','cAss'].forEach(id=>{const s=document.getElementById(id);const o=document.createElement('option');o.value=u.id;o.text=u.name;s.appendChild(o)});});
+  loadDash();loadBadge();setInterval(loadBadge,60000);fillApiDocs();
+}
+
+const PG_TITLES={dashboard:'工单看板',orders:'工单列表',notify:'触达配置','notify-log':'触达记录',projects:'项目统计',users:'人员管理',profile:'个人设置','api-config':'数据接口'};
+function go(name){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+name).classList.add('active');
+  const el=document.querySelector(`[data-p="${name}"]`);if(el)el.classList.add('active');
+  document.getElementById('pgTitle').textContent=PG_TITLES[name]||name;
+  if(name==='dashboard')loadDash();
+  if(name==='orders')loadOrders();
+  if(name==='notify')loadNotify();
+  if(name==='notify-log')loadNtfLog();
+  if(name==='projects')loadProjects();
+  if(name==='users')loadUsers();
+  if(name==='profile')fillProfile();
+}
+function refreshCur(){const a=document.querySelector('.page.active');if(a)go(a.id.replace('page-',''));}
+
+async function loadDash(){
+  const[sum,ps,dist,trend]=await Promise.all([api('GET','/workorders/summary'),api('GET','/workorders/project-stats'),api('GET','/workorders/status-distribution'),api('GET','/workorders/trend')]);
+  const s=sum.data;
+  if(s.pending>0){document.getElementById('dashAlert').style.display='flex';document.getElementById('dashAlertTxt').innerHTML=`今日共 <strong>${s.pending}</strong> 件未完结工单，超时 <strong style="color:var(--red)">${s.overdue}</strong> 件，请及时跟进`;}
+  document.getElementById('statsRow').innerHTML=[
+    {l:'总工单数',v:s.total,c:'c-dark',sub:'本月累计'},
+    {l:'未完结',v:s.pending,c:'c-red',sub:`需跟进处理`},
+    {l:'今日新增',v:s.todayNew,c:'c-orange',sub:'今日创建'},
+    {l:'超时预警',v:s.overdue,c:'c-red',sub:'超截止日期'},
+    {l:'已完结',v:s.done,c:'c-green',sub:`完结率 ${s.doneRate}%`},
+    {l:'平均处理',v:s.avgDays+'天',c:'c-purple',sub:'平均周期'},
+  ].map(x=>`<div class="sbox"><div class="s-lbl">${x.l}</div><div class="s-val ${x.c}">${x.v}</div><div class="s-ft">${x.sub}</div></div>`).join('');
+
+  document.getElementById('dashProjTb').innerHTML=(ps.data||[]).map(r=>`<tr>
+    <td style="font-weight:500">${r.project.name}</td><td style="color:var(--text-secondary)">${r.project.owner}</td>
+    <td>${r.total}</td><td style="color:var(--green);font-weight:500">${r.done}</td>
+    <td style="color:${r.pending>15?'var(--red)':'var(--orange)'};font-weight:500">${r.pending}</td>
+    <td>${r.overdue>0?`<span class="tag tag-red">${r.overdue}</span>`:'<span style="color:var(--text-tertiary)">0</span>'}</td>
+    <td>${r.doneRate}%</td>
+    <td style="min-width:90px"><div class="prog"><div class="prog-fill ${r.doneRate>70?'prog-g':r.doneRate<40?'prog-o':''}" style="width:${r.doneRate}%"></div></div></td>
+  </tr>`).join('');
+
+  const td=trend.data||[];
+  if(trendInst)trendInst.destroy();
+  trendInst=new Chart(document.getElementById('trendChart'),{type:'line',data:{labels:td.map(t=>t.date.slice(5)),datasets:[{label:'新增',data:td.map(t=>t.created),borderColor:'#3370ff',backgroundColor:'rgba(51,112,255,.06)',tension:.4,fill:true,pointRadius:3},{label:'完结',data:td.map(t=>t.resolved),borderColor:'#00b365',backgroundColor:'transparent',tension:.4,borderDash:[5,4],pointRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'top',labels:{boxWidth:10,font:{size:11}}}},scales:{y:{beginAtZero:true,grid:{color:'#f0f1f3'},ticks:{font:{size:11}}},x:{grid:{display:false},ticks:{font:{size:11}}}}}});
+
+  const dd=dist.data||[];const COLS={pending:'#ff8800',processing:'#3370ff',escalated:'#f54a45',done:'#00b365',cancelled:'#9ea6b4'};
+  if(pieInst)pieInst.destroy();
+  pieInst=new Chart(document.getElementById('pieChart'),{type:'doughnut',data:{labels:dd.map(d=>SL[d.status]||d.status),datasets:[{data:dd.map(d=>d.count),backgroundColor:dd.map(d=>COLS[d.status]||'#ccc'),borderWidth:0,hoverOffset:4}]},options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{position:'right',labels:{boxWidth:10,font:{size:11},padding:8}}}}});
+}
+
+async function loadOrders(page=1){
+  curPage=page;
+  const kw=document.getElementById('kw').value,proj=document.getElementById('fProj').value,st=document.getElementById('fSt').value,pri=document.getElementById('fPri').value,ass=document.getElementById('fAss').value;
+  const p=new URLSearchParams({page,pageSize:20});
+  if(kw)p.append('keyword',kw);if(proj)p.append('projectId',proj);if(st)p.append('status',st);if(pri)p.append('priority',pri);if(ass)p.append('assigneeId',ass);
+  const res=await api('GET','/workorders?'+p);
+  const{list=[],total=0,totalPages=1}=res?.data||{};
+  renderOrders(list);
+  const el=document.getElementById('ordersPagi');
+  let btns='';for(let i=1;i<=Math.min(totalPages,8);i++)btns+=`<button class="pagi-btn${i===page?' cur':''}" onclick="loadOrders(${i})">${i}</button>`;
+  el.innerHTML=`<span style="color:var(--text-tertiary)">共 ${total} 条</span><div class="pagi-btns">${btns}</div>`;
+}
+function renderOrders(list){
+  const b=document.getElementById('ordersTb');
+  if(!list.length){b.innerHTML=`<tr><td colspan="10"><div class="empty-st"><div class="empty-ico">📭</div><div>暂无数据</div></div></td></tr>`;return;}
+  b.innerHTML=list.map(o=>`<tr class="${isOv(o)?'ov-row':''}">
+    <td><span class="td-link" onclick="openDetail(${o.id})">${o.order_no}</span>${isOv(o)?'<span class="tag tag-red" style="margin-left:5px;font-size:10px">超时</span>':''}</td>
+    <td><span class="tag tag-blue">${o.project?.name||'—'}</span></td>
+    <td>${o.customer_name}</td>
+    <td style="color:var(--text-secondary)">${o.issue_type}</td>
+    <td>${pill(o.priority,PL[o.priority])}</td>
+    <td>${pill(o.status,SL[o.status])}</td>
+    <td style="color:var(--text-secondary)">${o.assignee?.name||'<span style="color:var(--text-tertiary)">待指派</span>'}</td>
+    <td style="color:${isOv(o)?'var(--red)':'var(--text-secondary)'}">${o.deadline||'—'}</td>
+    <td style="color:var(--text-tertiary)">${fmt(o.created_at)}</td>
+    <td><button class="btn btn-ghost btn-xs" onclick="openDetail(${o.id})">详情</button>${o.status!=='done'&&o.status!=='cancelled'?`<button class="btn btn-success btn-xs" style="margin-left:4px" onclick="qkDone(${o.id})">完结</button>`:''}</td>
+  </tr>`).join('');
+}
+function applyFlt(){loadOrders(1);}
+function filterPending(){document.getElementById('fSt').value='';document.getElementById('kw').value='';loadOrders(1);}
+function clearFlt(){['kw','fProj','fSt','fPri','fAss'].forEach(id=>document.getElementById(id).value='');loadOrders(1);}
+
+async function openDetail(id){
+  curOrdId=id;const r=await api('GET','/workorders/'+id);const o=r.data;curOrd=o;
+  document.getElementById('detTitle').textContent='工单详情 · '+o.order_no;
+  document.getElementById('detUpdBtn').style.display=o.status==='done'?'none':'';
+  document.getElementById('detBd').innerHTML=`
+    <div style="margin-bottom:16px"><div style="font-size:15px;font-weight:600;margin-bottom:8px">${o.title}</div><div style="display:flex;gap:6px;flex-wrap:wrap">${pill(o.status,SL[o.status])} ${pill(o.priority,PL[o.priority])} <span class="tag tag-blue">${o.project?.name||''}</span>${isOv(o)?'<span class="tag tag-red">⚠️ 已超时</span>':''}</div></div>
+    <div class="det-grid">
+      <div class="det-item"><div class="det-k">工单号</div><div class="det-v" style="font-family:monospace;font-size:12px">${o.order_no}</div></div>
+      <div class="det-item"><div class="det-k">工单来源</div><div class="det-v">${o.source||'—'}</div></div>
+      <div class="det-item"><div class="det-k">客户姓名</div><div class="det-v">${o.customer_name}</div></div>
+      <div class="det-item"><div class="det-k">联系电话</div><div class="det-v">${o.customer_phone||'—'}</div></div>
+      <div class="det-item"><div class="det-k">问题类型</div><div class="det-v">${o.issue_type}</div></div>
+      <div class="det-item"><div class="det-k">处理人</div><div class="det-v">${o.assignee?.name||'待指派'}</div></div>
+      <div class="det-item"><div class="det-k">截止日期</div><div class="det-v" style="color:${isOv(o)?'var(--red)':'inherit'}">${o.deadline||'—'}</div></div>
+      <div class="det-item"><div class="det-k">完结时间</div><div class="det-v">${o.resolved_at?fmtFull(o.resolved_at):'—'}</div></div>
+      <div class="det-item det-full"><div class="det-k">详细描述</div><div class="det-v">${o.description||'（无）'}</div></div>
+      <div class="det-item det-full"><div class="det-k">内部备注</div><div class="det-v">${o.remark||'（无）'}</div></div>
+    </div>
+    <div style="font-size:13px;font-weight:600;margin-bottom:12px">操作记录</div>
+    <div class="tl">${(o.logs||[]).map((l,i)=>`<div class="tl-item ${i===0?'tl-first':''}"><div class="tl-act">${l.operator?.name||'系统'} · ${l.content}</div>${l.from_status?`<div style="font-size:11px;color:var(--text-tertiary);margin-top:1px">${SL[l.from_status]||l.from_status} → ${SL[l.to_status]||l.to_status}</div>`:''}<div class="tl-meta">${fmtFull(l.created_at)}</div></div>`).join('')}</div>`;
+  open('detOv');
+}
+function openStModal(){
+  // 填充处理人列表
+  const sel = document.getElementById('newAssigneeId');
+  sel.innerHTML = '<option value="">不变</option>';
+  users.forEach(u => {
+    const o = document.createElement('option');
+    o.value = u.id; o.text = u.name;
+    if (curOrd && curOrd.assignee_id === u.id) o.selected = true;
+    sel.appendChild(o);
+  });
+  // 填充当前值
+  if (curOrd) {
+    document.getElementById('newSt').value = curOrd.status || 'pending';
+    document.getElementById('newPri').value = '';
+    document.getElementById('newDeadline').value = curOrd.deadline || '';
+  }
+  document.getElementById('stRmk').value = '';
+  open('stOv');
+}
+async function submitSt(){
+  const status = document.getElementById('newSt').value;
+  const remark = document.getElementById('stRmk').value;
+  const newAssigneeId = document.getElementById('newAssigneeId').value;
+  const newPri = document.getElementById('newPri').value;
+  const newDeadline = document.getElementById('newDeadline').value;
+
+  // 1. 更新状态
+  await api('PATCH', '/workorders/' + curOrdId + '/status', { status, remark });
+
+  // 2. 如果有变更指派人、优先级、截止日期，一并更新
+  const updateData = {};
+  if (newAssigneeId) updateData.assignee_id = parseInt(newAssigneeId);
+  if (newPri) updateData.priority = newPri;
+  if (newDeadline) updateData.deadline = newDeadline;
+  if (Object.keys(updateData).length > 0) {
+    await api('PUT', '/workorders/' + curOrdId, updateData);
+  }
+
+  cls('stOv'); cls('detOv');
+  const assigneeName = newAssigneeId ? users.find(u=>u.id===parseInt(newAssigneeId))?.name : null;
+  toast('工单已更新' + (assigneeName ? '，已指派给 ' + assigneeName : ''));
+  loadOrders(curPage); loadBadge();
+}
+async function qkDone(id){
+  if(!confirm('确认将此工单标记为已完结？'))return;
+  await api('PATCH','/workorders/'+id+'/status',{status:'done',remark:'业务人员确认完结'});
+  toast('工单已完结');loadOrders(curPage);loadBadge();
+}
+
+function openCreate(){const d=new Date();d.setDate(d.getDate()+3);document.getElementById('cDdl').value=d.toISOString().slice(0,10);open('crOv');}
+async function submitCreate(){
+  const project_id=document.getElementById('cProj').value,customer_name=document.getElementById('cCust').value.trim(),issue_type=document.getElementById('cIss').value,title=document.getElementById('cTitle').value.trim();
+  if(!project_id||!customer_name||!issue_type||!title){toast('请填写必填项','err');return;}
+  await api('POST','/workorders',{project_id:parseInt(project_id),customer_name,customer_phone:document.getElementById('cPhone').value,customer_id:document.getElementById('cCid').value,issue_type,title,description:document.getElementById('cDesc').value,priority:document.getElementById('cPri').value,assignee_id:document.getElementById('cAss').value||null,deadline:document.getElementById('cDdl').value,remark:document.getElementById('cRmk').value,source:document.getElementById('cSrc').value});
+  cls('crOv');toast('工单已创建');loadOrders(1);loadBadge();
+}
+
+async function loadTpl(){
+  const r = await api('GET', '/notify/template');
+  const t = r?.data || {};
+  document.getElementById('tplSubject').value = t.subject || '【工单日报】{{date}} 未完结 {{total}} 件';
+  document.getElementById('tplGreeting').value = t.greeting || '您好，以下是今日未完结工单汇总：';
+  document.getElementById('tplFooter').value = t.footer || '请及时跟进，确保在截止日期前完结。';
+  document.getElementById('tplSignature').value = t.signature || '健康服务部工单系统 · 自动推送';
+  document.getElementById('tplShowProj').checked = t.show_project_detail !== false;
+  document.getElementById('tplShowUrgent').checked = t.show_urgent_count !== false;
+}
+async function saveTpl(){
+  const data = {
+    subject: document.getElementById('tplSubject').value,
+    greeting: document.getElementById('tplGreeting').value,
+    footer: document.getElementById('tplFooter').value,
+    signature: document.getElementById('tplSignature').value,
+    show_project_detail: document.getElementById('tplShowProj').checked,
+    show_urgent_count: document.getElementById('tplShowUrgent').checked,
+  };
+  await api('PUT', '/notify/template', data);
+  toast('消息模板已保存');
+  loadNotify();
+}
+async function loadNotify(){
+  const r=await api('GET','/notify/preview');const d=r.data;
+  document.getElementById('notifyStats').innerHTML=[{l:'未完结工单',v:d.totalPending,c:'var(--red)'},{l:'紧急工单',v:d.urgentCount,c:'var(--orange)'},{l:'已超时',v:d.overdueCount,c:'var(--red)'},{l:'涉及项目',v:Object.keys(d.byProject||{}).length,c:'var(--accent)'}].map(x=>`<div class="sbox" style="padding:12px 14px"><div class="s-lbl">${x.l}</div><div class="s-val" style="font-size:20px;color:${x.c}">${x.v}</div></div>`).join('');
+  const lines=Object.entries(d.byProject||{}).map(([p,c])=>`　· <strong>${p}</strong>：${c} 件`).join('<br>');
+  const t=new Date().toLocaleDateString('zh-CN');
+  document.getElementById('notifyPrev').innerHTML=`<strong>【工单处理提醒】${t}</strong><br><br>您好，以下是今日未完结工单汇总：<br><br>${lines||'（暂无未完结工单）'}<br><br>合计未完结：<strong style="color:var(--red)">${d.totalPending} 件</strong>${d.urgentCount?`，紧急 <strong style="color:var(--orange)">${d.urgentCount} 件</strong>`:''}<br><br>请及时跟进，确保在截止日期前完结。<br><br><span style="color:var(--text-tertiary);font-size:12px">— 健康服务部工单系统 · 自动推送</span>`;
+  loadTpl();
+  document.getElementById('notifyRecips').innerHTML=users.filter(u=>u.role!=='admin').map(u=>`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border2)"><div style="width:26px;height:26px;border-radius:50%;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">${u.name[0]}</div><div style="flex:1"><div style="font-size:13px;font-weight:500">${u.name}</div><div style="font-size:11px;color:var(--text-tertiary)">${u.email} · ${RL[u.role]}</div></div><label class="toggle"><input type="checkbox" checked><span class="toggle-sl"></span></label></div>`).join('');
+}
+async function sendNotify(){
+  const ch=[];if(document.getElementById('chW').checked)ch.push('wecom');if(document.getElementById('chE').checked)ch.push('email');
+  if(!ch.length){toast('请选择通知渠道','err');return;}
+  document.getElementById('sendBtn').textContent='发送中...';document.getElementById('sendBtn').disabled=true;
+  const r=await api('POST','/notify/send',{channels:ch});
+  document.getElementById('sendBtn').textContent='📤 立即发送';document.getElementById('sendBtn').disabled=false;
+  if(r?.code===0){toast(`通知已发送，共 ${r.data.pendingCount} 件工单`);loadNotify();}
+  else toast('发送失败','err');
+}
+function selSch(el,cron){document.querySelectorAll('.sch-box').forEach(b=>b.classList.remove('sel'));el.classList.add('sel');document.getElementById('cronVal').value=cron;}
+function saveCron(){toast('定时配置已保存');}
+
+async function loadNtfLog(){
+  const r=await api('GET','/notify/logs?pageSize=20');const list=r?.data?.list||[];
+  const CH={wecom:'💬 企业微信',email:'📧 邮件'};const TY={daily_summary:'每日汇总',manual:'手动触发',urgent_alert:'紧急告警'};
+  document.getElementById('ntfLogTb').innerHTML=list.length?list.map(l=>`<tr>
+    <td style="color:var(--text-secondary)">${fmtFull(l.sent_at)}</td><td>${CH[l.channel]||l.channel}</td>
+    <td><span class="tag tag-blue">${TY[l.notify_type]||l.notify_type}</span></td>
+    <td style="font-weight:500">${l.pending_count}</td>
+    <td>${l.status==='success'?pill('done','成功'):pill('escalated','失败')}</td>
+    <td style="color:var(--text-tertiary)">${l.error_msg||'—'}</td>
+  </tr>`).join(''):`<tr><td colspan="6"><div class="empty-st"><div class="empty-ico">📭</div><div>暂无记录</div></div></td></tr>`;
+}
+
+async function loadBadge(){
+  const r=await api('GET','/notify/preview');const c=r?.data?.totalPending||0;
+  const el=document.getElementById('nbPending');if(el){el.textContent=c;el.style.display=c>0?'flex':'none';}
+}
+
+async function loadProjects(){
+  const r=await api('GET','/workorders/project-stats');const stats=r?.data||[];
+  const tot={total:0,done:0,pending:0,overdue:0};stats.forEach(s=>{tot.total+=s.total;tot.done+=s.done;tot.pending+=s.pending;tot.overdue+=s.overdue;});
+  document.getElementById('projSmry').innerHTML=[{l:'总工单数',v:tot.total,c:'c-dark'},{l:'已完结',v:tot.done,c:'c-green'},{l:'未完结',v:tot.pending,c:'c-red'},{l:'超时预警',v:tot.overdue,c:'c-orange'}].map(x=>`<div class="sbox"><div class="s-lbl">${x.l}</div><div class="s-val ${x.c}">${x.v}</div></div>`).join('');
+  document.getElementById('projCards').innerHTML=stats.map(r=>`<div class="card">
+    <div class="card-hd">
+      <div style="display:flex;align-items:center;gap:10px"><div style="width:34px;height:34px;background:var(--accent-bg);border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px">📁</div><div><div style="font-size:14px;font-weight:600">${r.project.name}</div><div style="font-size:11px;color:var(--text-tertiary);margin-top:1px">负责人：${r.project.owner}</div></div></div>
+      <div style="display:flex;gap:6px">${r.pending>0?`<span class="tag tag-red">未完结 ${r.pending}</span>`:''}<span class="tag tag-green">完结率 ${r.doneRate}%</span></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px">${[['总工单',r.total,'var(--text-primary)'],['已完结',r.done,'var(--green)'],['未完结',r.pending,'var(--red)'],['超时',r.overdue,r.overdue>0?'var(--red)':'var(--text-tertiary)']].map(([l,v,c])=>`<div style="text-align:center;padding:10px;background:var(--bg);border-radius:var(--radius)"><div style="font-size:11px;color:var(--text-tertiary);margin-bottom:4px">${l}</div><div style="font-size:18px;font-weight:700;color:${c}">${v}</div></div>`).join('')}</div>
+    <div class="prog" style="height:5px"><div class="prog-fill ${r.doneRate>70?'prog-g':r.doneRate<40?'prog-o':''}" style="width:${r.doneRate}%"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-tertiary);margin-top:3px"><span>0%</span><span>${r.doneRate}%</span><span>100%</span></div>
+  </div>`).join('');
+}
+
+async function loadUsers(){
+  const r=await api('GET','/users');usersAll=r?.data||[];renderUsers(usersAll);
+}
+function renderUsers(list){
+  document.getElementById('usersTb').innerHTML=list.length?list.map(u=>`<tr>
+    <td><div style="display:flex;align-items:center;gap:8px"><div style="width:26px;height:26px;border-radius:50%;background:var(--accent-bg);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600">${u.name[0]}</div>${u.name}</div></td>
+    <td style="color:var(--text-secondary)">${u.email}</td>
+    <td style="color:var(--text-secondary)">${u.dept||'—'}</td>
+    <td>${pill(u.role,RL[u.role])}</td>
+    <td><label class="toggle"><input type="checkbox" ${u.role!=='admin'?'checked':''}><span class="toggle-sl"></span></label></td>
+    <td>${pill('done','正常')}</td>
+    <td style="color:var(--text-tertiary)">${u.last_login_at?fmtFull(u.last_login_at):'从未登录'}</td>
+    <td><button class="btn btn-ghost btn-xs" onclick="toast('编辑功能（连接后端接口后生效）')">编辑</button>${u.id!==me.id?`<button class="btn btn-danger btn-xs" style="margin-left:4px" onclick="toast('已更新用户状态')">禁用</button>`:''}</td>
+  </tr>`).join(''):`<tr><td colspan="8"><div class="empty-st"><div class="empty-ico">👥</div><div>暂无成员</div></div></td></tr>`;
+}
+function fltUsers(kw){renderUsers(usersAll.filter(u=>u.name.includes(kw)||u.email.includes(kw)));}
+function fltUserRole(role){renderUsers(role?usersAll.filter(u=>u.role===role):usersAll);}
+function openAddUser(){['uNm','uEm','uWc','uPh','uPw'].forEach(id=>document.getElementById(id).value='');document.getElementById('uDp').value='健康服务部';open('usrOv');}
+async function submitUser(){
+  const name=document.getElementById('uNm').value.trim(),email=document.getElementById('uEm').value.trim();
+  if(!name||!email){toast('请填写姓名和邮箱','err');return;}
+  toast('成员信息已保存');cls('usrOv');loadUsers();
+}
+
+function fillProfile(){
+  document.getElementById('profAv').textContent=(me.name||'U')[0];
+  document.getElementById('profName').textContent=me.name||'—';
+  document.getElementById('profEmail').textContent=me.email||'—';
+  document.getElementById('pName').value=me.name||'';
+  document.getElementById('pEmail').value=me.email||'';
+  document.getElementById('pDept').value=me.dept||'健康服务部';
+  document.getElementById('pWecom').value=me.wecom_id||'';
+  document.getElementById('pPhone').value=me.phone||'';
+}
+function saveProfile(){
+  me.name=document.getElementById('pName').value;me.dept=document.getElementById('pDept').value;me.wecom_id=document.getElementById('pWecom').value;
+  localStorage.setItem('me',JSON.stringify(me));
+  ['sAv','profAv'].forEach(id=>document.getElementById(id).textContent=(me.name||'U')[0]);
+  document.getElementById('sName').textContent=me.name;document.getElementById('profName').textContent=me.name;
+  toast('个人信息已保存');
+}
+function chgPwd(){
+  const o=document.getElementById('oldPwd').value,n=document.getElementById('newPwd').value,c=document.getElementById('cfmPwd').value;
+  if(!o||!n||!c){toast('请填写完整','err');return;}
+  if(n!==c){toast('两次密码不一致','err');return;}
+  if(n.length<8){toast('新密码至少8位','err');return;}
+  toast('密码修改成功');['oldPwd','newPwd','cfmPwd'].forEach(id=>document.getElementById(id).value='');
+}
+
+function fillApiDocs(){
+  const base=location.origin+'/api';
+  document.getElementById('apiPush').innerHTML=[{m:'POST',p:'/workorders',d:'创建工单 - 业务系统推入新工单'},{m:'PUT',p:'/workorders/:id',d:'更新工单信息'},{m:'PATCH',p:'/workorders/:id/status',d:'变更工单状态'}].map(a=>`<div class="api-ep"><span class="api-m m-${a.m.toLowerCase()}">${a.m}</span><span>${base}${a.p}</span><span style="margin-left:8px;color:var(--text-tertiary);font-size:11px">${a.d}</span><span class="cp-btn" onclick="cp('${base}${a.p}')">复制</span></div>`).join('');
+  document.getElementById('apiPull').innerHTML=[{p:'/workorders?status=pending',d:'获取未完结工单列表'},{p:'/workorders/summary',d:'统计总览数据'},{p:'/workorders/project-stats',d:'各项目统计'},{p:'/notify/preview',d:'当日待触达工单汇总'}].map(a=>`<div class="api-ep"><span class="api-m m-get">GET</span><span>${base}${a.p}</span><span style="margin-left:8px;color:var(--text-tertiary);font-size:11px">${a.d}</span><span class="cp-btn" onclick="cp('${base}${a.p}')">复制</span></div>`).join('');
+}
+
+document.querySelectorAll('.overlay').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open')}));
+token=localStorage.getItem('token')||'';me=JSON.parse(localStorage.getItem('me')||'{}');
+if(token)boot();
+</script>
+</body>
+</html>
